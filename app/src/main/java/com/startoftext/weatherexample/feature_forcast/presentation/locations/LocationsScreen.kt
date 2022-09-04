@@ -22,6 +22,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.startoftext.weatherexample.feature_forcast.presentation.locations.components.LocationItem
@@ -78,19 +80,25 @@ fun LocationsScreen(
                         )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        items(state.locations) { location ->
-                            LocationItem(
-                                location = location,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(MaterialTheme.colors.surface)
-                                    .clickable {
-                                        navController.navigate(
-                                            Screen.WeatherDetailsScreen.route + "?location=${location.id}"
-                                        )
-                                    },
-                                onDeleteClick = {
+
+                    SwipeRefresh(
+                        // TODO fix this
+                        state = rememberSwipeRefreshState(false),
+                        onRefresh = { viewModel.onEvent(LocationsEvent.Refresh) },
+                    ) {
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            items(state.locations) { location ->
+                                LocationItem(
+                                    location = location,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(MaterialTheme.colors.surface)
+                                        .clickable {
+                                            navController.navigate(
+                                                Screen.WeatherDetailsScreen.route + "?location=${location.location.id}"
+                                            )
+                                        },
+                                    onDeleteClick = {
 //                                    viewModel.onEvent(NotesEvent.DeleteNote(note))
 //                                    scope.launch {
 //                                        val result = scaffoldState.snackbarHostState.showSnackbar(
@@ -101,9 +109,10 @@ fun LocationsScreen(
 //                                            viewModel.onEvent(NotesEvent.RestoreNote)
 //                                        }
 //                                    }
-                                }
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
+                                    }
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
                         }
                     }
                 }

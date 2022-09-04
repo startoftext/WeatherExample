@@ -104,9 +104,13 @@ dependencies {
     // See here for more info : https://github.com/google/accompanist
     // Anytime compose is updated this needs to be updated also
     def accompanist_version = "0.25.1"
-    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-swiperefresh:$accompanist_version"
     implementation "androidx.compose.material:material:$compose_version"
 
+    // Retrofit dependencies
+    implementation 'com.squareup.retrofit2:retrofit:2.7.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.2'
 }
 
 kapt {

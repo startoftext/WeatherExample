@@ -62,12 +62,13 @@ class LocationsViewModel @Inject constructor(
                     }
                 }
             }
+            LocationsEvent.Refresh -> getLocations()
         }
     }
 
     private fun getLocations(){
         getLocationsJob?.cancel()
-        getLocationsJob = locationUseCases.getLocations()
+        getLocationsJob = locationUseCases.getLocationsAndForecast()
             .onEach {
                 _state.value = state.value.copy(
                     locations = it

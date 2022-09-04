@@ -4,5 +4,6 @@ data class LocationUseCases (
     val getLocations: GetLocationsUseCase,
     val deleteLocation: DeleteLocationUseCase,
     val addLocation: AddLocationUseCase,
-    val getLocation: GetLocationUseCase
+    val getLocation: GetLocationUseCase,
+    val getLocationsAndForecast: GetLocationsAndForecastUseCase
 )
