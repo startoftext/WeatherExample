@@ -1,35 +1,21 @@
 package com.startoftext.weatherexample
 
-import android.annotation.SuppressLint
-import android.app.Activity.RESULT_OK
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.android.gms.common.util.CollectionUtils.listOf
-import com.google.android.libraries.places.widget.Autocomplete
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
-import com.startoftext.weatherexample.feature_forcast.presentation.locations.LocationsScreen
-import com.startoftext.weatherexample.feature_forcast.presentation.locations.LocationsViewModel
-import com.startoftext.weatherexample.feature_forcast.presentation.util.Screen
+import com.startoftext.weatherexample.feature_forecast.presentation.locations.LocationsScreen
+import com.startoftext.weatherexample.feature_forecast.presentation.util.Screen
+import com.startoftext.weatherexample.feature_forecast.presentation.weather_details.WeatherDetailScreen
 import com.startoftext.weatherexample.ui.theme.WeatherExampleTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -49,22 +35,22 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = Screen.LocationsScreen.route
                     ){
-                        composable(route = Screen.LocationsScreen.route){
+                        composable(route = Screen.LocationsScreen.route) {
                             LocationsScreen(navController = navController)
                         }
-//                        composable(route = Screen.AddEditNoteScreen.route +
-//                                "?locationId={locationId}",
-//                            arguments = listOf(
-//                                navArgument(
-//                                    name = "locationId"
-//                                ){
-//                                    type = NavType.IntType
-//                                    defaultValue = -1
-//                                }
-//                            )
-//                        ){
-//
-//                        }
+                        composable(route = Screen.WeatherDetailScreen.route +
+                                "?locationId={locationId}",
+                            arguments = listOf(
+                                navArgument(
+                                    name = "locationId"
+                                ) {
+                                    type = NavType.IntType
+                                    defaultValue = -1
+                                }
+                            )
+                        ) {
+                            WeatherDetailScreen()
+                        }
                     }
                 }
             }
