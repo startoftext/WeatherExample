@@ -17,13 +17,15 @@ class WeatherRepositoryImpl @Inject constructor(
 
     override fun getFiveDayForecast(lat: Double, lon: Double): Flow<Resource<FiveDayForecast>> {
         return flow {
-            emit(Resource.Loading<FiveDayForecast>(true))
+            emit(Resource.Loading(true))
             val response = weatherApi.getFiveDayForecast(lat = lat, lon = lon)
             val body = response.body()
             if (response.isSuccessful && body != null) {
                 emit(Resource.Success(body.toFiveDayForecast()))
+                emit(Resource.Loading(false))
             } else {
                 emit(Resource.Error(response.message()))
+                emit(Resource.Loading(false))
             }
         }
 

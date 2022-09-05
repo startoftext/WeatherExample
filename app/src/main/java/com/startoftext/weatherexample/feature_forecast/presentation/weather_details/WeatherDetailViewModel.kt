@@ -36,6 +36,7 @@ class WeatherDetailViewModel @Inject constructor(
                 viewModelScope.launch {
                     locationUseCases.getLocation(locationId)?.also { location ->
                         currentLocation = location
+                        _state.value = state.value.copy(title = location.name)
                         refresh()
                     }
                 }

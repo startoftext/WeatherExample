@@ -21,49 +21,66 @@ fun LocationItem(
     location: LocationAndForecast,
     modifier: Modifier = Modifier,
     onDeleteClick: () -> Unit
-){
-    val dismissState = rememberDismissState(initialValue = DismissValue.Default)
+) {
+    val dismissState = rememberDismissState(
+        confirmStateChange = {
+            if (it == DismissValue.DismissedToEnd) {
+                onDeleteClick.invoke()
+            }
+            true
+        }
+    )
+    
+//    if (dismissState.isDismissed(DismissDirection.StartToEnd)) {
+//        LaunchedEffect(true) {
+//
+//            //delay(300)
+//            dismissState.reset()
+//            dismissState.snapTo(DismissValue.Default)
+//        }
+//    }
 
     SwipeToDismiss(
         state = dismissState,
         background = {
-            MaterialTheme.colors.background
+            MaterialTheme.colors.secondaryVariant
         },
         directions = setOf(DismissDirection.StartToEnd),
-        modifier = modifier.fillMaxSize()
-    ) {
+        modifier = modifier.fillMaxSize(),
+        dismissThresholds = { FractionalThreshold(0.7f) },
+        dismissContent = {
 
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
-                .fillMaxSize()
-        ) {
-            Row(
+            Box(
                 modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
                     .fillMaxSize()
-                    .padding(end = 16.dp, start = 16.dp, top = 8.dp, bottom = 8.dp)
-                    .align(Alignment.Center)
             ) {
-                Text(
-                    text = location.location.name,
-                    style = MaterialTheme.typography.body1,
-                    color = MaterialTheme.colors.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(Modifier.weight(1f))
-                Text(
-                    text = location.forecast.tempCurrent.toString(),
-                    style = MaterialTheme.typography.body1,
-                    color = MaterialTheme.colors.onSurface,
-                    maxLines = 10,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(end = 16.dp, start = 16.dp, top = 8.dp, bottom = 8.dp)
+                        .align(Alignment.Center)
+                ) {
+                    Text(
+                        text = location.location.name,
+                        style = MaterialTheme.typography.body1,
+                        color = MaterialTheme.colors.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.weight(1f))
+                    Text(
+                        text = location.forecast.tempCurrent.toString(),
+                        style = MaterialTheme.typography.body1,
+                        color = MaterialTheme.colors.onSurface,
+                        maxLines = 10,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                Divider(modifier = Modifier.align(Alignment.BottomCenter))
             }
-            Divider(modifier = Modifier.align(Alignment.BottomCenter))
-        }
 
-    }
+        })
 }
 
 

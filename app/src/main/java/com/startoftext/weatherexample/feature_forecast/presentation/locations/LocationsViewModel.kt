@@ -37,7 +37,7 @@ class LocationsViewModel @Inject constructor(
             is LocationsUiEvent.AddLocation -> {
                 viewModelScope.launch {
                     try {
-                        locationUseCases.addLocation.invoke(
+                        locationUseCases.addLocation(
                             Location(
                                 event.name,
                                 event.longitude,
@@ -56,6 +56,11 @@ class LocationsViewModel @Inject constructor(
                 }
             }
             LocationsUiEvent.Refresh -> getLocations()
+            is LocationsUiEvent.DeleteLocation -> viewModelScope.launch {
+                locationUseCases.deleteLocation(
+                    event.location
+                )
+            }
         }
     }
 

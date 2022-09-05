@@ -6,6 +6,7 @@ import java.time.LocalDate
 
 data class WeatherDetailState(
     val loading: Boolean = false,
+    val title: String = "",
     val currentWeather: Forecast? = null,
     val fiveDayForecast: Map<LocalDate, List<ThreeHourForecast>> = emptyMap()
 )

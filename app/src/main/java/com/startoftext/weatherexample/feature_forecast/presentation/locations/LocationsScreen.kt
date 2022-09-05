@@ -91,7 +91,7 @@ fun LocationsScreen(
                         onRefresh = { viewModel.onEvent(LocationsUiEvent.Refresh) },
                     ) {
                         LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(state.locations) { location ->
+                            items(state.locations, key = { it.location.id!! }) { location ->
                                 LocationItem(
                                     location = location,
                                     modifier = Modifier
@@ -103,6 +103,7 @@ fun LocationsScreen(
                                             )
                                         },
                                     onDeleteClick = {
+                                        viewModel.onEvent(LocationsUiEvent.DeleteLocation(location.location))
                                     }
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))

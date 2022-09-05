@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         ) {
-                            WeatherDetailScreen()
+                            WeatherDetailScreen(navController = navController)
                         }
                     }
                 }
