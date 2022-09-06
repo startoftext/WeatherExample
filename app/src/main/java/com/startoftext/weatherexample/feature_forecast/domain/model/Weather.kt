@@ -4,9 +4,12 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class Forecast(
-    val locationId: Int,
-    val tempCurrent: Double,
+data class Weather(
+    val locationId: Int? = null,
+    val temp: Double,
+    val weatherType: String,
+    val description: String,
+    val icon: String,
 
     @PrimaryKey(autoGenerate = true)
     val id: Int? = null

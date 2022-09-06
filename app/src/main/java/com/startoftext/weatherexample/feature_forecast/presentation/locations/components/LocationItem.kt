@@ -8,17 +8,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.common.util.CollectionUtils.setOf
-import com.startoftext.weatherexample.feature_forecast.domain.model.Forecast
 import com.startoftext.weatherexample.feature_forecast.domain.model.Location
-import com.startoftext.weatherexample.feature_forecast.domain.model.LocationAndForecast
 
 @ExperimentalMaterialApi
 @Composable
 fun LocationItem(
-    location: LocationAndForecast,
+    location: Location,
+    temp: Int?,
     modifier: Modifier = Modifier,
     onDeleteClick: () -> Unit
 ) {
@@ -62,32 +60,27 @@ fun LocationItem(
                         .align(Alignment.Center)
                 ) {
                     Text(
-                        text = location.location.name,
+                        text = location.name,
                         style = MaterialTheme.typography.body1,
                         color = MaterialTheme.colors.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Spacer(Modifier.weight(1f))
-                    Text(
-                        text = location.forecast.tempCurrent.toString(),
-                        style = MaterialTheme.typography.body1,
-                        color = MaterialTheme.colors.onSurface,
-                        maxLines = 10,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    if (temp != null) {
+                        Text(
+                            text = temp.toString() + Char(0x00B0),
+                            style = MaterialTheme.typography.body1,
+                            color = MaterialTheme.colors.onSurface,
+                            maxLines = 10,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    } else {
+                        CircularProgressIndicator()
+                    }
                 }
                 Divider(modifier = Modifier.align(Alignment.BottomCenter))
             }
 
         })
-}
-
-
-
-@ExperimentalMaterialApi
-@Preview
-@Composable
-fun ComposablePreview() {
-    LocationItem(location = LocationAndForecast(Location(id = 1, latitude = 0.0, longitude = 0.0, name = "Denver, CO"), Forecast(0, 90.0)), onDeleteClick = {})
 }

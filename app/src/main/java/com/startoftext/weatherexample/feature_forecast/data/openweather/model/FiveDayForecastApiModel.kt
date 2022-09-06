@@ -7,17 +7,10 @@ data class FiveDayForecastApiModel(
 )
 
 data class ThreeHourForecast(
-    val main: Main,
-    val weather: List<Weather>,
+    val main: TempApiModel,
+    val weather: List<WeatherApiModel>,
     val rain: Rain?,
     val dt: Long
-)
-
-data class Weather(
-    val id: Int,
-    val main: String,
-    val description: String,
-    val icon: String
 )
 
 data class Rain(

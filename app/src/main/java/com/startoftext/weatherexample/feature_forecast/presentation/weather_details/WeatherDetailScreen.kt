@@ -10,12 +10,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.startoftext.weatherexample.feature_forecast.presentation.weather_details.components.ForecastIncrement
+import com.startoftext.weatherexample.feature_forecast.presentation.weather_details.util.WeatherIconResolver
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -43,7 +45,7 @@ fun WeatherDetailScreen(
     ) { padding ->
 
         SwipeRefresh(
-            state = rememberSwipeRefreshState(state.loading),
+            state = rememberSwipeRefreshState(state.loadingForecast || state.loadingWeather),
             onRefresh = { viewModel.onEvent(WeatherDetailUiEvent.Refresh) }) {
 
             Column(
@@ -52,8 +54,27 @@ fun WeatherDetailScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                Row() {
 
+                state.currentWeather?.let { weather ->
+                    Row(modifier = Modifier.padding(16.dp)) {
+                        Column() {
+                            Text(text = state.currentDate)
+                            Text(
+                                style = MaterialTheme.typography.h1,
+                                text = String.format("%.0f", weather.temp) + Char(
+                                    0x00B0
+                                )
+                            )
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                        Column() {
+                            Icon(
+                                painter = painterResource(id = WeatherIconResolver.resolve(weather.icon)),
+                                contentDescription = "",
+                                modifier = Modifier.size(128.dp)
+                            )
+                        }
+                    }
                 }
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -63,13 +84,15 @@ fun WeatherDetailScreen(
                             modifier = Modifier
                                 .padding(8.dp)
                         ) {
-                            Column() {
+                            Column(modifier = Modifier.padding(4.dp)) {
                                 Text(text = it.toString())
                                 Row() {
                                     state.fiveDayForecast[it]?.forEach {
                                         ForecastIncrement(
                                             temp = it.temp,
-                                            date = timeFormatter.format(it.date.toInstant())
+                                            date = timeFormatter.format(it.date.toInstant()),
+                                            WeatherIconResolver.resolve(it.icon),
+                                            it.precipitationPercentage
                                         )
                                     }
                                 }

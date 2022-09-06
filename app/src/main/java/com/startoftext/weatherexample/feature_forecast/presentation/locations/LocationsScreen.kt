@@ -48,9 +48,9 @@ fun LocationsScreen(
             Log.d("place LatLng: ", "$latLng")
             viewModel.onEvent(
                 LocationsUiEvent.AddLocation(
-                    place.name,
-                    latLng.longitude,
-                    latLng.latitude
+                    name = place.name,
+                    longitude = latLng.longitude,
+                    latitude = latLng.latitude
                 )
             )
         }
@@ -91,19 +91,20 @@ fun LocationsScreen(
                         onRefresh = { viewModel.onEvent(LocationsUiEvent.Refresh) },
                     ) {
                         LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(state.locations, key = { it.location.id!! }) { location ->
+                            items(state.locations, key = { it.id!! }) { location ->
                                 LocationItem(
                                     location = location,
+                                    state.locationTemps[location.id],
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .background(MaterialTheme.colors.surface)
                                         .clickable {
                                             navController.navigate(
-                                                Screen.WeatherDetailScreen.route + "?locationId=${location.location.id}"
+                                                Screen.WeatherDetailScreen.route + "?locationId=${location.id}"
                                             )
                                         },
                                     onDeleteClick = {
-                                        viewModel.onEvent(LocationsUiEvent.DeleteLocation(location.location))
+                                        viewModel.onEvent(LocationsUiEvent.DeleteLocation(location))
                                     }
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))

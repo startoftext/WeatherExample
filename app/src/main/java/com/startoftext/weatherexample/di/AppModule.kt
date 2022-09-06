@@ -45,21 +45,18 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideLocationUseCases(repository: LocationRepository): LocationUseCases {
-        return LocationUseCases(
-            getLocations = GetLocationsUseCase(repository),
-            deleteLocation = DeleteLocationUseCase(repository),
-            addLocation = AddLocationUseCase(repository),
-            getLocation = GetLocationUseCase(repository),
-            getLocationsAndForecast = GetLocationsAndForecastUseCase(repository)
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideWeatherUseCases(repository: WeatherRepository): WeatherUseCases {
-        return WeatherUseCases(
-            getFiveDayForecastUseCase = GetFiveDayForecastUseCase(repository)
+    fun provideLocationUseCases(
+        locationRepository: LocationRepository,
+        weatherRepository: WeatherRepository
+    ): UseCases {
+        return UseCases(
+            getLocations = GetLocationsUseCase(locationRepository),
+            deleteLocation = DeleteLocationUseCase(locationRepository),
+            addLocation = AddLocationUseCase(locationRepository),
+            getLocation = GetLocationUseCase(locationRepository),
+            getLocationsAndForecast = GetLocationsAndForecastUseCase(locationRepository),
+            getFiveDayForecastUseCase = GetFiveDayForecastUseCase(weatherRepository),
+            getCurrentWeatherUseCase = GetCurrentWeatherUseCase(weatherRepository)
         )
     }
 

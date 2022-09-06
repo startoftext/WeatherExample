@@ -8,5 +8,5 @@ data class LocationAndForecast(
     val location: Location,
 
     @Relation(parentColumn = "id", entityColumn = "locationId")
-    val forecast: Forecast
+    val forecast: Weather
 )

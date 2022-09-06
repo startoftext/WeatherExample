@@ -6,6 +6,7 @@ data class ThreeHourForecast(
     val temp: Double,
     val weatherType: String,
     val description: String,
+    val icon: String,
     val precipitationPercentage: Double,
     val date: Date
 )

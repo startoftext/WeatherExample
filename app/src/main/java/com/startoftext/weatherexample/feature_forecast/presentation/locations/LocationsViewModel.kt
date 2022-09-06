@@ -8,7 +8,7 @@ import com.google.android.gms.common.util.CollectionUtils.listOf
 import com.google.android.libraries.places.api.model.Place
 import com.startoftext.weatherexample.feature_forecast.domain.model.InvalidLocationException
 import com.startoftext.weatherexample.feature_forecast.domain.model.Location
-import com.startoftext.weatherexample.feature_forecast.domain.use_case.LocationUseCases
+import com.startoftext.weatherexample.feature_forecast.domain.use_case.UseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LocationsViewModel @Inject constructor(
-    private val locationUseCases: LocationUseCases
+    private val locationUseCases: UseCases
 ): ViewModel() {
     private val _state = mutableStateOf(LocationsState())
     val state: State<LocationsState> = _state
@@ -55,7 +55,7 @@ class LocationsViewModel @Inject constructor(
                     }
                 }
             }
-            LocationsUiEvent.Refresh -> getLocations()
+            LocationsUiEvent.Refresh -> getTemps(true)
             is LocationsUiEvent.DeleteLocation -> viewModelScope.launch {
                 locationUseCases.deleteLocation(
                     event.location
@@ -64,15 +64,60 @@ class LocationsViewModel @Inject constructor(
         }
     }
 
-    private fun getLocations(){
+    private fun getLocations() {
+//        getLocationsJob?.cancel()
+//        getLocationsJob = locationUseCases.getLocationsAndForecast()
+//            .onEach {
+//                _state.value = state.value.copy(
+//                    locations = it
+//                )
+//            }
+//            .launchIn(viewModelScope)
+
         getLocationsJob?.cancel()
-        getLocationsJob = locationUseCases.getLocationsAndForecast()
+        getLocationsJob = locationUseCases.getLocations()
             .onEach {
                 _state.value = state.value.copy(
                     locations = it
                 )
+                getTemps(false)
             }
             .launchIn(viewModelScope)
+    }
+
+    private fun getTemps(refresh: Boolean) {
+        //var requests = mutableMapOf<Int, Deferred<Resource<Weather>>>()
+
+
+//        viewModelScope.launch {
+//            state.value.locations.forEach {
+//                val dif = async {
+//
+//
+//                    val resource = locationUseCases.getCurrentWeatherUseCase(
+//                        lat = it.latitude,
+//                        lon = it.longitude
+//                    )
+//
+//                    when (resource) {
+//                        is Resource.Success -> {
+//                            val map = HashMap(state.value.locationTemps)
+//                            map[it.id] = resource.data!!.temp.toInt()
+//                            _state.value = state.value.copy(
+//                                locationTemps = map
+//                            )
+//                        }
+//                        else -> {
+//                            Log.e("Error %s", resource.message!!)
+//                        }
+//                    }
+//                }
+//
+//
+//            }
+//
+//        }
+
     }
 
 }

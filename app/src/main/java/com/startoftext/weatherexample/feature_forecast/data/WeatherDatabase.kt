@@ -2,12 +2,12 @@ package com.startoftext.weatherexample.feature_forecast.data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.startoftext.weatherexample.feature_forecast.domain.model.Forecast
 import com.startoftext.weatherexample.feature_forecast.domain.model.Location
+import com.startoftext.weatherexample.feature_forecast.domain.model.Weather
 
 @Database(
-    entities = [Location::class, Forecast::class],
-    version = 2
+    entities = [Location::class, Weather::class],
+    version = 3
 )
 //@TypeConverters(Converters::class)
 abstract class WeatherDatabase : RoomDatabase(){

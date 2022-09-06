@@ -4,9 +4,9 @@ import com.startoftext.weatherexample.feature_forecast.data.ForecastDao
 import com.startoftext.weatherexample.feature_forecast.data.LocationDao
 import com.startoftext.weatherexample.feature_forecast.data.openweather.WeatherApi
 import com.startoftext.weatherexample.feature_forecast.domain.LocationRepository
-import com.startoftext.weatherexample.feature_forecast.domain.model.Forecast
 import com.startoftext.weatherexample.feature_forecast.domain.model.Location
 import com.startoftext.weatherexample.feature_forecast.domain.model.LocationAndForecast
+import com.startoftext.weatherexample.feature_forecast.domain.model.Weather
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Singleton
@@ -25,12 +25,19 @@ class LocationRepositoryImpl(
                 val forecastFromDb =
                     location.id?.let { it1 -> forecastDao.getForecastByLocationId(it1) }
 
-                val forecast: Forecast = if (forecastFromDb != null) {
+                val forecast: Weather = if (forecastFromDb != null) {
                     forecastFromDb
                 } else {
-                    val response = weatherApi.getCurrentWeather(location.longitude, location.latitude)
+                    val response =
+                        weatherApi.getCurrentWeather(location.longitude, location.latitude)
                     val currentWeather = response.body()
-                    val forecast = Forecast(location.id!!, currentWeather!!.main!!.temp)
+                    val forecast = Weather(
+                        location.id!!,
+                        currentWeather!!.main!!.temp,
+                        icon = "",
+                        weatherType = "",
+                        description = ""
+                    )
                     forecast
                 }
 
