@@ -15,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -67,6 +66,11 @@ fun LocationsScreen(
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Add location")
             }
         },
+        topBar = {
+            TopAppBar(
+                title = { Text("Weather") }
+            )
+        },
         scaffoldState = scaffoldState,
 
         ) { padding ->
@@ -75,18 +79,6 @@ fun LocationsScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Locations",
-                    style = MaterialTheme.typography.h4
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
             SwipeRefresh(
                 state = rememberSwipeRefreshState(state.loading),
                 onRefresh = { viewModel.onEvent(LocationsUiEvent.Refresh) },
@@ -108,8 +100,8 @@ fun LocationsScreen(
                                 viewModel.onEvent(LocationsUiEvent.DeleteLocation(it.location))
                             }
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
                     }
+                    item { Spacer(modifier = Modifier.padding(48.dp)) }
                 }
             }
         }

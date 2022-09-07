@@ -41,7 +41,7 @@ fun WeatherDetailScreen(
                     }
                 }
             )
-        },
+        }
     ) { padding ->
 
         SwipeRefresh(

@@ -42,15 +42,18 @@ fun LocationItem(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .height(56.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
                         .padding(end = 16.dp, start = 16.dp, top = 8.dp, bottom = 8.dp)
                         .align(Alignment.Center)
                 ) {
                     Text(
+                        //modifier = Modifier.fillMaxHeight(),
                         text = location.name,
                         style = MaterialTheme.typography.body1,
                         color = MaterialTheme.colors.onSurface,
