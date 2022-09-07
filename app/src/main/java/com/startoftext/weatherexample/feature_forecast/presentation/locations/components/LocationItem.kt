@@ -28,15 +28,6 @@ fun LocationItem(
             true
         }
     )
-    
-//    if (dismissState.isDismissed(DismissDirection.StartToEnd)) {
-//        LaunchedEffect(true) {
-//
-//            //delay(300)
-//            dismissState.reset()
-//            dismissState.snapTo(DismissValue.Default)
-//        }
-//    }
 
     SwipeToDismiss(
         state = dismissState,
@@ -81,6 +72,5 @@ fun LocationItem(
                 }
                 Divider(modifier = Modifier.align(Alignment.BottomCenter))
             }
-
         })
 }

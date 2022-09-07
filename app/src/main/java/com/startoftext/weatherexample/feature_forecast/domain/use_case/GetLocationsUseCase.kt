@@ -10,5 +10,4 @@ class GetLocationsUseCase(
     operator fun invoke(): Flow<List<Location>> {
         return repository.getLocations()
     }
-
 }

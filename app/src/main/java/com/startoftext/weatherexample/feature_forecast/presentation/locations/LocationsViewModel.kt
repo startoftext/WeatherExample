@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LocationsViewModel @Inject constructor(
     private val locationUseCases: UseCases
-): ViewModel() {
+) : ViewModel() {
     private val _state = mutableStateOf(LocationsState())
     val state: State<LocationsState> = _state
 
@@ -33,8 +33,7 @@ class LocationsViewModel @Inject constructor(
     init {
         getLocations()
     }
-
-
+    
     fun onEvent(event: LocationsUiEvent) {
         when (event) {
             is LocationsUiEvent.AddLocation -> {
@@ -47,7 +46,6 @@ class LocationsViewModel @Inject constructor(
                                 event.latitude
                             )
                         )
-                        // TODO we could emit an event to the UI if needed
                     } catch (e: InvalidLocationException) {
                         // TODO
 //                        _eventFlow.emit(
@@ -82,85 +80,5 @@ class LocationsViewModel @Inject constructor(
                 }
 
             }.launchIn(viewModelScope)
-
-//        getLocationsJob?.cancel()
-//        getLocationsJob = locationUseCases.getLocations()
-//            .onEach {
-//                _state.value = state.value.copy(
-//                    locations = it
-//                )
-//                getTemps(false)
-//            }
-//            .launchIn(viewModelScope)
     }
-
-//    private fun getTemps(refresh: Boolean) {
-//        //var requests = mutableMapOf<Int, Deferred<Resource<Weather>>>()
-//        getTemperatureJobs.forEach { it.cancel() }
-//        getTemperatureJobs = mutableListOf()
-//        //getTemperatureLoadingStates = List(state.value.locations.size)
-//
-//        state.value.locations.forEach { location ->
-//            //getTemperatureLoadingStates.put(location.id) = false
-//            getTemperatureJobs.add(
-//                locationUseCases.getCurrentWeatherUseCase(
-//                    lat = location.latitude,
-//                    lon = location.longitude
-//                ).onEach { resource ->
-//                    when (resource) {
-//                        is Resource.Success -> {
-//                            val map = HashMap(state.value.locationTemps)
-//                            resource.data?.let { weather ->
-//                                map[location.id] = resource.data!!.temp.toInt()
-//                                _state.value = state.value.copy(
-//                                    locationTemps = map
-//                                )
-//                            }
-//                        }
-//                        is Resource.Error -> Log.e("Error %s", resource.message!!)
-//                        is Resource.Loading -> {}
-//                    }
-//                }.launchIn(viewModelScope)
-//            )
-//        }
-//
-//        viewModelScope.async {
-//            _state.value = state.value.copy(loading = true)
-//            getTemperatureJobs.forEach {
-//                it.join()
-//            }
-//            _state.value = state.value.copy(loading = true)
-//        }
-
-//        viewModelScope.launch {
-//            state.value.locations.forEach {
-//                val dif = async {
-//
-//
-//                    val resource = locationUseCases.getCurrentWeatherUseCase(
-//                        lat = it.latitude,
-//                        lon = it.longitude
-//                    )
-//
-//                    when (resource) {
-//                        is Resource.Success -> {
-//                            val map = HashMap(state.value.locationTemps)
-//                            map[it.id] = resource.data!!.temp.toInt()
-//                            _state.value = state.value.copy(
-//                                locationTemps = map
-//                            )
-//                        }
-//                        else -> {
-//                            Log.e("Error %s", resource.message!!)
-//                        }
-//                    }
-//                }
-//
-//
-//            }
-//
-//        }
-
-    //   }
-
 }

@@ -34,7 +34,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideLocationRepository(db: WeatherDatabase, weatherApi: WeatherApi): LocationRepository {
-        return LocationRepositoryImpl(db.locationDao, db.forecastDao, weatherApi)
+        return LocationRepositoryImpl(db.locationDao)
     }
 
     @Provides

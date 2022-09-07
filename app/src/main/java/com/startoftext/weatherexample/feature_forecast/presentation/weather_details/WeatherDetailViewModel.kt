@@ -45,8 +45,6 @@ class WeatherDetailViewModel @Inject constructor(
                 }
             }
         }
-
-        //refresh()
     }
 
     fun onEvent(event: WeatherDetailUiEvent) {

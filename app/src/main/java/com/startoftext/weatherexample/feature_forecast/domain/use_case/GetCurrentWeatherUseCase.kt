@@ -7,5 +7,4 @@ data class GetCurrentWeatherUseCase(
 ) {
     operator fun invoke(lat: Double, lon: Double) =
         repository.getCurrentWeather(lat = lat, lon = lon)
-
 }

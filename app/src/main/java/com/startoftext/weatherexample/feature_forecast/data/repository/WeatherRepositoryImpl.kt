@@ -48,15 +48,6 @@ class WeatherRepositoryImpl @Inject constructor(
             }
             emit(Resource.Loading(false))
         }
-
-        // TODO cleanup
-        //        val response = weatherApi.getCurrentWeather(lat = lat, lon = lon)
-//        val body = response.body()
-//        return if (response.isSuccessful && body != null) {
-//            Resource.Success(body.toWeather())
-//        } else {
-//            Resource.Error(response.message())
-//        }
     }
 
     override fun getCurrentWeather(latLonList: List<LatLon>): Flow<Resource<List<Weather?>>> {
@@ -81,6 +72,4 @@ class WeatherRepositoryImpl @Inject constructor(
             }
         }
     }
-
-
 }

@@ -9,7 +9,6 @@ import com.startoftext.weatherexample.feature_forecast.domain.model.Weather
     entities = [Location::class, Weather::class],
     version = 3
 )
-//@TypeConverters(Converters::class)
 abstract class WeatherDatabase : RoomDatabase(){
 
     abstract val locationDao: LocationDao

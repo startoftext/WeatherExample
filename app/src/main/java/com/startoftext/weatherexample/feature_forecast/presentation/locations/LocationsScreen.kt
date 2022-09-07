@@ -40,78 +40,80 @@ fun LocationsScreen(
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
-    val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, viewModel.field).build(context)
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if(it.resultCode == Activity.RESULT_OK) {
-            val place = Autocomplete.getPlaceFromIntent(it.data)
-            val latLng = place.latLng
-            Log.d("place LatLng: ", "$latLng")
-            viewModel.onEvent(
-                LocationsUiEvent.AddLocation(
-                    name = place.name,
-                    longitude = latLng.longitude,
-                    latitude = latLng.latitude
+    val intent =
+        Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, viewModel.field).build(context)
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                val place = Autocomplete.getPlaceFromIntent(it.data)
+                val latLng = place.latLng
+                Log.d("place LatLng: ", "$latLng")
+                viewModel.onEvent(
+                    LocationsUiEvent.AddLocation(
+                        name = place.name,
+                        longitude = latLng.longitude,
+                        latitude = latLng.latitude
+                    )
                 )
-            )
+            }
         }
-    }
 
-            Scaffold(
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = { launcher.launch(intent) },
-                        backgroundColor = MaterialTheme.colors.primary
-                    ) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "Add location")
-                    }
-                },
-                scaffoldState = scaffoldState,
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { launcher.launch(intent) },
+                backgroundColor = MaterialTheme.colors.primary
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add location")
+            }
+        },
+        scaffoldState = scaffoldState,
 
-                ) { padding ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Locations",
-                            style = MaterialTheme.typography.h4
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
+        ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Locations",
+                    style = MaterialTheme.typography.h4
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
 
-                    SwipeRefresh(
-                        state = rememberSwipeRefreshState(state.loading),
-                        onRefresh = { viewModel.onEvent(LocationsUiEvent.Refresh) },
-                    ) {
-                        LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(state.locations, key = { it.location.id!! }) { it ->
-                                LocationItem(
-                                    location = it.location,
-                                    temp = it.forecast?.temp?.toInt(),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(MaterialTheme.colors.surface)
-                                        .clickable {
-                                            navController.navigate(
-                                                Screen.WeatherDetailScreen.route + "?locationId=${it.location.id}"
-                                            )
-                                        },
-                                    onDeleteClick = {
-                                        viewModel.onEvent(LocationsUiEvent.DeleteLocation(it.location))
-                                    }
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(state.loading),
+                onRefresh = { viewModel.onEvent(LocationsUiEvent.Refresh) },
+            ) {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(state.locations, key = { it.location.id!! }) { it ->
+                        LocationItem(
+                            location = it.location,
+                            temp = it.forecast?.temp?.toInt(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colors.surface)
+                                .clickable {
+                                    navController.navigate(
+                                        Screen.WeatherDetailScreen.route + "?locationId=${it.location.id}"
+                                    )
+                                },
+                            onDeleteClick = {
+                                viewModel.onEvent(LocationsUiEvent.DeleteLocation(it.location))
                             }
-                        }
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
             }
         }
+    }
+}
 
 

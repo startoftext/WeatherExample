@@ -6,12 +6,8 @@ import kotlinx.coroutines.flow.Flow;
 
 @Dao
 interface LocationDao {
-
     @Query("select * from location")
     fun getLocations(): Flow<List<Location>>
-
-//    @Query("select * from location")
-//    fun getLocationsAndForecast(): Flow<List<LocationAndForecast>>
 
     @Query("select * from location where id = :id")
     suspend fun getLocationById(id: Int): Location?
@@ -21,5 +17,4 @@ interface LocationDao {
 
     @Delete
     suspend fun deleteLocation(location: Location)
-
 }
