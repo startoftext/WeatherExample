@@ -3,10 +3,14 @@ package com.startoftext.weatherexample.feature_forecast.data.repository
 import com.startoftext.weatherexample.feature_forecast.data.openweather.WeatherApi
 import com.startoftext.weatherexample.feature_forecast.domain.WeatherRepository
 import com.startoftext.weatherexample.feature_forecast.domain.model.FiveDayForecast
+import com.startoftext.weatherexample.feature_forecast.domain.model.LatLon
 import com.startoftext.weatherexample.feature_forecast.domain.model.Weather
 import com.startoftext.weatherexample.feature_forecast.domain.util.Resource
 import com.startoftext.weatherexample.feature_forecast.domain.util.toFiveDayForecast
 import com.startoftext.weatherexample.feature_forecast.domain.util.toWeather
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -54,4 +58,29 @@ class WeatherRepositoryImpl @Inject constructor(
 //            Resource.Error(response.message())
 //        }
     }
+
+    override fun getCurrentWeather(latLonList: List<LatLon>): Flow<Resource<List<Weather?>>> {
+        return flow {
+            coroutineScope {
+                val foobar =
+                    latLonList.map {
+                        async {
+                            weatherApi.getCurrentWeather(lat = it.lat, lon = it.lon)
+                        }
+                    }.awaitAll().map {
+                        val body = it.body()
+                        if (it.isSuccessful && body != null) {
+                            body.toWeather()
+                        } else {
+                            emit(Resource.Error(message = it.message()))
+                            null
+                        }
+                    }
+
+                emit(Resource.Success(foobar))
+            }
+        }
+    }
+
+
 }

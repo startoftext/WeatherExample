@@ -54,7 +54,10 @@ object AppModule {
             deleteLocation = DeleteLocationUseCase(locationRepository),
             addLocation = AddLocationUseCase(locationRepository),
             getLocation = GetLocationUseCase(locationRepository),
-            getLocationsAndForecast = GetLocationsAndForecastUseCase(locationRepository),
+            getLocationsAndForecast = GetLocationsAndWeatherUseCase(
+                locationRepository,
+                weatherRepository
+            ),
             getFiveDayForecastUseCase = GetFiveDayForecastUseCase(weatherRepository),
             getCurrentWeatherUseCase = GetCurrentWeatherUseCase(weatherRepository)
         )

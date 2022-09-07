@@ -86,25 +86,24 @@ fun LocationsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     SwipeRefresh(
-                        // TODO fix this
-                        state = rememberSwipeRefreshState(false),
+                        state = rememberSwipeRefreshState(state.loading),
                         onRefresh = { viewModel.onEvent(LocationsUiEvent.Refresh) },
                     ) {
                         LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(state.locations, key = { it.id!! }) { location ->
+                            items(state.locations, key = { it.location.id!! }) { it ->
                                 LocationItem(
-                                    location = location,
-                                    state.locationTemps[location.id],
+                                    location = it.location,
+                                    temp = it.forecast?.temp?.toInt(),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .background(MaterialTheme.colors.surface)
                                         .clickable {
                                             navController.navigate(
-                                                Screen.WeatherDetailScreen.route + "?locationId=${location.id}"
+                                                Screen.WeatherDetailScreen.route + "?locationId=${it.location.id}"
                                             )
                                         },
                                     onDeleteClick = {
-                                        viewModel.onEvent(LocationsUiEvent.DeleteLocation(location))
+                                        viewModel.onEvent(LocationsUiEvent.DeleteLocation(it.location))
                                     }
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))

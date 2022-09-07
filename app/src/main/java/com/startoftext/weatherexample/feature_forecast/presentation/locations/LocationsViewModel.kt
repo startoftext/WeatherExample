@@ -9,6 +9,7 @@ import com.google.android.libraries.places.api.model.Place
 import com.startoftext.weatherexample.feature_forecast.domain.model.InvalidLocationException
 import com.startoftext.weatherexample.feature_forecast.domain.model.Location
 import com.startoftext.weatherexample.feature_forecast.domain.use_case.UseCases
+import com.startoftext.weatherexample.feature_forecast.domain.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
@@ -24,6 +25,8 @@ class LocationsViewModel @Inject constructor(
     val state: State<LocationsState> = _state
 
     private var getLocationsJob: Job? = null
+    private var getTemperatureJobs = mutableListOf<Job>()
+    private var getTemperatureLoadingStates = mutableListOf<Boolean>()
 
     val field = listOf(Place.Field.NAME, Place.Field.LAT_LNG)
 
@@ -55,7 +58,7 @@ class LocationsViewModel @Inject constructor(
                     }
                 }
             }
-            LocationsUiEvent.Refresh -> getTemps(true)
+            LocationsUiEvent.Refresh -> getLocations()
             is LocationsUiEvent.DeleteLocation -> viewModelScope.launch {
                 locationUseCases.deleteLocation(
                     event.location
@@ -65,29 +68,69 @@ class LocationsViewModel @Inject constructor(
     }
 
     private fun getLocations() {
+        getLocationsJob?.cancel()
+        getLocationsJob = locationUseCases.getLocationsAndForecast()
+            .onEach {
+                when (it) {
+                    is Resource.Error -> TODO()
+                    is Resource.Loading -> _state.value = state.value.copy(loading = it.isLoading)
+                    is Resource.Success -> {
+                        _state.value = state.value.copy(
+                            locations = it.data!!
+                        )
+                    }
+                }
+
+            }.launchIn(viewModelScope)
+
 //        getLocationsJob?.cancel()
-//        getLocationsJob = locationUseCases.getLocationsAndForecast()
+//        getLocationsJob = locationUseCases.getLocations()
 //            .onEach {
 //                _state.value = state.value.copy(
 //                    locations = it
 //                )
+//                getTemps(false)
 //            }
 //            .launchIn(viewModelScope)
-
-        getLocationsJob?.cancel()
-        getLocationsJob = locationUseCases.getLocations()
-            .onEach {
-                _state.value = state.value.copy(
-                    locations = it
-                )
-                getTemps(false)
-            }
-            .launchIn(viewModelScope)
     }
 
-    private fun getTemps(refresh: Boolean) {
-        //var requests = mutableMapOf<Int, Deferred<Resource<Weather>>>()
-
+//    private fun getTemps(refresh: Boolean) {
+//        //var requests = mutableMapOf<Int, Deferred<Resource<Weather>>>()
+//        getTemperatureJobs.forEach { it.cancel() }
+//        getTemperatureJobs = mutableListOf()
+//        //getTemperatureLoadingStates = List(state.value.locations.size)
+//
+//        state.value.locations.forEach { location ->
+//            //getTemperatureLoadingStates.put(location.id) = false
+//            getTemperatureJobs.add(
+//                locationUseCases.getCurrentWeatherUseCase(
+//                    lat = location.latitude,
+//                    lon = location.longitude
+//                ).onEach { resource ->
+//                    when (resource) {
+//                        is Resource.Success -> {
+//                            val map = HashMap(state.value.locationTemps)
+//                            resource.data?.let { weather ->
+//                                map[location.id] = resource.data!!.temp.toInt()
+//                                _state.value = state.value.copy(
+//                                    locationTemps = map
+//                                )
+//                            }
+//                        }
+//                        is Resource.Error -> Log.e("Error %s", resource.message!!)
+//                        is Resource.Loading -> {}
+//                    }
+//                }.launchIn(viewModelScope)
+//            )
+//        }
+//
+//        viewModelScope.async {
+//            _state.value = state.value.copy(loading = true)
+//            getTemperatureJobs.forEach {
+//                it.join()
+//            }
+//            _state.value = state.value.copy(loading = true)
+//        }
 
 //        viewModelScope.launch {
 //            state.value.locations.forEach {
@@ -118,6 +161,6 @@ class LocationsViewModel @Inject constructor(
 //
 //        }
 
-    }
+    //   }
 
 }

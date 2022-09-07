@@ -5,7 +5,7 @@ data class UseCases(
     val deleteLocation: DeleteLocationUseCase,
     val addLocation: AddLocationUseCase,
     val getLocation: GetLocationUseCase,
-    val getLocationsAndForecast: GetLocationsAndForecastUseCase,
+    val getLocationsAndForecast: GetLocationsAndWeatherUseCase,
     val getFiveDayForecastUseCase: GetFiveDayForecastUseCase,
     val getCurrentWeatherUseCase: GetCurrentWeatherUseCase
 )
