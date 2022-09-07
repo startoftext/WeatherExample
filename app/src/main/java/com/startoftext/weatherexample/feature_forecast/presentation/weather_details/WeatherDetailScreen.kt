@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -18,6 +19,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.startoftext.weatherexample.feature_forecast.presentation.weather_details.components.ForecastIncrement
 import com.startoftext.weatherexample.feature_forecast.presentation.weather_details.util.WeatherIconResolver
+import kotlinx.coroutines.flow.collectLatest
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -29,6 +31,18 @@ fun WeatherDetailScreen(
     val state = viewModel.state.value
     val timeFormatter = DateTimeFormatter.ofPattern("ha").withZone(ZoneId.systemDefault())
     val scaffoldState = rememberScaffoldState()
+
+    LaunchedEffect(key1 = true) {
+        viewModel.eventFlow.collectLatest { event ->
+            when (event) {
+                is WeatherDetailViewModel.UiEvent.ShowSnackbar -> {
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = event.message
+                    )
+                }
+            }
+        }
+    }
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -46,7 +60,7 @@ fun WeatherDetailScreen(
 
         SwipeRefresh(
             state = rememberSwipeRefreshState(state.loadingForecast || state.loadingWeather),
-            onRefresh = { viewModel.onEvent(WeatherDetailUiEvent.Refresh) }) {
+            onRefresh = { viewModel.onEvent(WeatherDetailEvent.Refresh) }) {
 
             Column(
                 modifier = Modifier

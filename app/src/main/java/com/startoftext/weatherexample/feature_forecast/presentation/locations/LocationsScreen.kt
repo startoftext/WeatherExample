@@ -14,6 +14,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,10 +23,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.google.android.gms.common.util.CollectionUtils
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.TypeFilter
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.startoftext.weatherexample.feature_forecast.presentation.locations.components.LocationItem
 import com.startoftext.weatherexample.feature_forecast.presentation.util.Screen
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
@@ -39,8 +45,10 @@ fun LocationsScreen(
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
+    val fields = CollectionUtils.listOf(Place.Field.NAME, Place.Field.LAT_LNG)
     val intent =
-        Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, viewModel.field).build(context)
+        Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+            .setTypeFilter(TypeFilter.CITIES).build(context)
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
@@ -48,7 +56,7 @@ fun LocationsScreen(
                 val latLng = place.latLng
                 Log.d("place LatLng: ", "$latLng")
                 viewModel.onEvent(
-                    LocationsUiEvent.AddLocation(
+                    LocationsEvent.AddLocation(
                         name = place.name,
                         longitude = latLng.longitude,
                         latitude = latLng.latitude
@@ -56,6 +64,18 @@ fun LocationsScreen(
                 )
             }
         }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.eventFlow.collectLatest { event ->
+            when (event) {
+                is LocationsViewModel.UiEvent.ShowSnackbar -> {
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = event.message
+                    )
+                }
+            }
+        }
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -81,7 +101,7 @@ fun LocationsScreen(
         ) {
             SwipeRefresh(
                 state = rememberSwipeRefreshState(state.loading),
-                onRefresh = { viewModel.onEvent(LocationsUiEvent.Refresh) },
+                onRefresh = { viewModel.onEvent(LocationsEvent.Refresh) },
             ) {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(state.locations, key = { it.location.id!! }) { it ->
@@ -97,7 +117,16 @@ fun LocationsScreen(
                                     )
                                 },
                             onDeleteClick = {
-                                viewModel.onEvent(LocationsUiEvent.DeleteLocation(it.location))
+                                viewModel.onEvent(LocationsEvent.DeleteLocation(it.location))
+                                scope.launch {
+                                    val result = scaffoldState.snackbarHostState.showSnackbar(
+                                        message = "City deleted",
+                                        actionLabel = "Undo"
+                                    )
+                                    if (result == SnackbarResult.ActionPerformed) {
+                                        viewModel.onEvent(LocationsEvent.RestoreLocation)
+                                    }
+                                }
                             }
                         )
                     }

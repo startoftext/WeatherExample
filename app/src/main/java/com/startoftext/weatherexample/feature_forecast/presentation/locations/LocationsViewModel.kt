@@ -4,14 +4,14 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.common.util.CollectionUtils.listOf
-import com.google.android.libraries.places.api.model.Place
 import com.startoftext.weatherexample.feature_forecast.domain.model.InvalidLocationException
 import com.startoftext.weatherexample.feature_forecast.domain.model.Location
 import com.startoftext.weatherexample.feature_forecast.domain.use_case.UseCases
 import com.startoftext.weatherexample.feature_forecast.domain.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -21,22 +21,24 @@ import javax.inject.Inject
 class LocationsViewModel @Inject constructor(
     private val locationUseCases: UseCases
 ) : ViewModel() {
+
     private val _state = mutableStateOf(LocationsState())
     val state: State<LocationsState> = _state
 
-    private var getLocationsJob: Job? = null
-    private var getTemperatureJobs = mutableListOf<Job>()
-    private var getTemperatureLoadingStates = mutableListOf<Boolean>()
+    private val _eventFlow = MutableSharedFlow<UiEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
 
-    val field = listOf(Place.Field.NAME, Place.Field.LAT_LNG)
+    private var getLocationsJob: Job? = null
+
+    private var recentlyDeletedLocation: Location? = null;
 
     init {
         getLocations()
     }
-    
-    fun onEvent(event: LocationsUiEvent) {
+
+    fun onEvent(event: LocationsEvent) {
         when (event) {
-            is LocationsUiEvent.AddLocation -> {
+            is LocationsEvent.AddLocation -> {
                 viewModelScope.launch {
                     try {
                         locationUseCases.addLocation(
@@ -47,20 +49,24 @@ class LocationsViewModel @Inject constructor(
                             )
                         )
                     } catch (e: InvalidLocationException) {
-                        // TODO
-//                        _eventFlow.emit(
-//                            UiEvent.ShowSnackbar(
-//                                message = e.message ?: "Couldn't save note"
-//                            )
-//                        )
+                        _eventFlow.emit(
+                            UiEvent.ShowSnackbar(
+                                message = e.message ?: "Oops! Something bad happened"
+                            )
+                        )
                     }
                 }
             }
-            LocationsUiEvent.Refresh -> getLocations()
-            is LocationsUiEvent.DeleteLocation -> viewModelScope.launch {
-                locationUseCases.deleteLocation(
-                    event.location
-                )
+            LocationsEvent.Refresh -> getLocations()
+            is LocationsEvent.DeleteLocation -> viewModelScope.launch {
+                locationUseCases.deleteLocation(event.location)
+                recentlyDeletedLocation = event.location
+            }
+            LocationsEvent.RestoreLocation -> {
+                viewModelScope.launch {
+                    locationUseCases.addLocation(recentlyDeletedLocation ?: return@launch)
+                    recentlyDeletedLocation = null
+                }
             }
         }
     }
@@ -70,7 +76,11 @@ class LocationsViewModel @Inject constructor(
         getLocationsJob = locationUseCases.getLocationsAndForecast()
             .onEach {
                 when (it) {
-                    is Resource.Error -> TODO()
+                    is Resource.Error -> _eventFlow.emit(
+                        UiEvent.ShowSnackbar(
+                            message = it.message ?: "Oops! Something bad happened"
+                        )
+                    )
                     is Resource.Loading -> _state.value = state.value.copy(loading = it.isLoading)
                     is Resource.Success -> {
                         _state.value = state.value.copy(
@@ -80,5 +90,9 @@ class LocationsViewModel @Inject constructor(
                 }
 
             }.launchIn(viewModelScope)
+    }
+
+    sealed class UiEvent {
+        data class ShowSnackbar(val message: String) : UiEvent()
     }
 }

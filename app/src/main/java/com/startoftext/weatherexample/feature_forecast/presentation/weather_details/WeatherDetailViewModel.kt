@@ -9,7 +9,8 @@ import com.startoftext.weatherexample.feature_forecast.domain.model.Location
 import com.startoftext.weatherexample.feature_forecast.domain.use_case.UseCases
 import com.startoftext.weatherexample.feature_forecast.domain.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -23,14 +24,16 @@ class WeatherDetailViewModel @Inject constructor(
     private val locationUseCases: UseCases,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
     private val _state = mutableStateOf(WeatherDetailState())
     val state: State<WeatherDetailState> = _state
 
+    private val _eventFlow = MutableSharedFlow<UiEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
+
     private var currentLocation: Location? = null
 
-    private var getFiveDayForecastJob: Job? = null
-
-    val dateFormatter =
+    private val dateFormatter: DateTimeFormatter =
         DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a").withZone(ZoneId.systemDefault())
 
     init {
@@ -47,9 +50,9 @@ class WeatherDetailViewModel @Inject constructor(
         }
     }
 
-    fun onEvent(event: WeatherDetailUiEvent) {
+    fun onEvent(event: WeatherDetailEvent) {
         when (event) {
-            WeatherDetailUiEvent.Refresh -> refresh()
+            WeatherDetailEvent.Refresh -> refresh()
         }
     }
 
@@ -61,7 +64,11 @@ class WeatherDetailViewModel @Inject constructor(
                 lon = location.longitude
             ).onEach {
                 when (it) {
-                    is Resource.Error -> TODO()
+                    is Resource.Error -> _eventFlow.emit(
+                        UiEvent.ShowSnackbar(
+                            message = it.message ?: "Oops! Something bad happened"
+                        )
+                    )
                     is Resource.Loading -> _state.value =
                         state.value.copy(loadingForecast = it.isLoading)
                     is Resource.Success -> {
@@ -79,7 +86,11 @@ class WeatherDetailViewModel @Inject constructor(
                 lon = location.longitude
             ).onEach {
                 when (it) {
-                    is Resource.Error -> TODO()
+                    is Resource.Error -> _eventFlow.emit(
+                        UiEvent.ShowSnackbar(
+                            message = it.message ?: "Oops! Something bad happened"
+                        )
+                    )
                     is Resource.Loading -> _state.value =
                         state.value.copy(loadingForecast = it.isLoading)
                     is Resource.Success -> _state.value =
@@ -90,5 +101,9 @@ class WeatherDetailViewModel @Inject constructor(
                 }
             }.launchIn(viewModelScope)
         }
+    }
+
+    sealed class UiEvent {
+        data class ShowSnackbar(val message: String) : UiEvent()
     }
 }
